@@ -43,7 +43,7 @@ namespace SimpleAsyncDemoApp
         {
             var watch = Stopwatch.StartNew();
 
-            await RunDownloadAsync();
+            await RunDownloadParallelAsync();
 
             watch.Stop();
             var elapsedMs = watch.ElapsedMilliseconds;
@@ -59,6 +59,24 @@ namespace SimpleAsyncDemoApp
             {
                 WebsiteDataModel results = await Task.Run(() =>  DownloadWebsite(site));
                 ReportWebsiteInfo(results);
+            }
+        }
+
+        private async Task RunDownloadParallelAsync()
+        {
+            List<string> websites = PrepData();
+            List<Task<WebsiteDataModel>> tasks = new List<Task<WebsiteDataModel>>();
+
+            foreach (string site in PrepData())
+            {
+                tasks.Add(Task.Run(() => DownloadWebsite(site)));
+            }
+
+            var results = await Task.WhenAll<WebsiteDataModel>(tasks);
+
+            foreach (WebsiteDataModel item in results)
+            {
+                ReportWebsiteInfo(item);
             }
         }
 
