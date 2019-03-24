@@ -69,7 +69,7 @@ namespace SimpleAsyncDemoApp
 
             foreach (string site in PrepData())
             {
-                tasks.Add(Task.Run(() => DownloadWebsite(site)));
+                tasks.Add(DownloadWebsiteAsync(site));
             }
 
             var results = await Task.WhenAll<WebsiteDataModel>(tasks);
@@ -115,6 +115,17 @@ namespace SimpleAsyncDemoApp
 
             output.WebsiteUrl = websiteUrl;
             output.WebsiteData = client.DownloadString(websiteUrl);
+
+            return output;
+        }
+
+        private async Task<WebsiteDataModel> DownloadWebsiteAsync(string websiteUrl)
+        {
+            WebsiteDataModel output = new WebsiteDataModel();
+            WebClient client = new WebClient();
+
+            output.WebsiteUrl = websiteUrl;
+            output.WebsiteData = await client.DownloadStringTaskAsync(websiteUrl);
 
             return output;
         }
