@@ -39,6 +39,29 @@ namespace SimpleAsyncDemoApp
             resultsWindow.Text += $"Total execution time: { elapsedMs }";
         }
 
+        private async void executeAsync_Click(object sender, RoutedEventArgs e)
+        {
+            var watch = Stopwatch.StartNew();
+
+            await RunDownloadAsync();
+
+            watch.Stop();
+            var elapsedMs = watch.ElapsedMilliseconds;
+
+            resultsWindow.Text += $"Total execution time: { elapsedMs }";
+        }
+
+        private async Task RunDownloadAsync()
+        {
+            List<string> websites = PrepData();
+
+            foreach (string site in PrepData())
+            {
+                WebsiteDataModel results = await Task.Run(() =>  DownloadWebsite(site));
+                ReportWebsiteInfo(results);
+            }
+        }
+
         private List<string> PrepData()
         {
             List<string> output = new List<string>();
@@ -81,11 +104,6 @@ namespace SimpleAsyncDemoApp
         private void ReportWebsiteInfo(WebsiteDataModel data)
         {
             resultsWindow.Text += $"{ data.WebsiteUrl } download: {data.WebsiteData.Length} characters long.{ Environment.NewLine }";
-        }
-
-        private void executeAsync_Click(object sender, RoutedEventArgs e)
-        {
-
         }
     }
 }
