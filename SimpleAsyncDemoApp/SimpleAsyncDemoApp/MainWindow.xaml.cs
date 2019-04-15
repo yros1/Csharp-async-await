@@ -1,19 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace SimpleAsyncDemoApp
 {
@@ -22,6 +11,8 @@ namespace SimpleAsyncDemoApp
     /// </summary>
     public partial class MainWindow : Window
     {
+        CancellationTokenSource cts = new CancellationTokenSource();
+
         public MainWindow()
         {
             InitializeComponent();
@@ -47,8 +38,15 @@ namespace SimpleAsyncDemoApp
 
             var watch = Stopwatch.StartNew();
 
-            var results = await DemoMethods.RunDownloadAsync(progress);
-            // PrintResults(results);
+            try
+            {
+                var results = await DemoMethods.RunDownloadAsync(progress, cts.Token);
+                // PrintResults(results);
+            }
+            catch (OperationCanceledException)
+            {
+                resultsWindow.Text += $"The async download was cancelled. { Environment.NewLine }";
+            }
 
             watch.Stop();
             var elapsedMs = watch.ElapsedMilliseconds;
@@ -77,7 +75,7 @@ namespace SimpleAsyncDemoApp
 
         private async void cancelOperation_Click(object sender, RoutedEventArgs e)
         {
-
+            cts.Cancel();
         }
 
         private void PrintResults(List<WebsiteDataModel> results)

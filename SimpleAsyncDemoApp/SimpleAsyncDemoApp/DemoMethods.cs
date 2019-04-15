@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SimpleAsyncDemoApp
@@ -41,7 +42,7 @@ namespace SimpleAsyncDemoApp
             return output;
         }
 
-        public static async Task<List<WebsiteDataModel>> RunDownloadAsync(IProgress<ProgressReportModel> progress)
+        public static async Task<List<WebsiteDataModel>> RunDownloadAsync(IProgress<ProgressReportModel> progress, CancellationToken cancellationToken)
         {
             List<string> websites = PrepData();
             List<WebsiteDataModel> output = new List<WebsiteDataModel>();
@@ -51,6 +52,8 @@ namespace SimpleAsyncDemoApp
             {
                 WebsiteDataModel results = await DownloadWebsiteAsync(site);
                 output.Add(results);
+
+                cancellationToken.ThrowIfCancellationRequested();
 
                 report.SitesDownloaded = output;
                 report.PrecentageComplete = (output.Count * 100) / websites.Count;
