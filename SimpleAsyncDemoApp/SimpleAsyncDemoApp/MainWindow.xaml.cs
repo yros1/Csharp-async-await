@@ -22,7 +22,12 @@ namespace SimpleAsyncDemoApp
         {
             var watch = Stopwatch.StartNew();
 
-            var results = DemoMethods.RunDownloadSync();
+            //Run in sync example. That frezee UI.
+            //var results = DemoMethods.RunDownloadSync();
+
+            //Run in Parallel example. That frezee UI.
+            var results = DemoMethods.RunDownloadParallelSync();
+
             PrintResults(results);
 
             watch.Stop();
@@ -40,6 +45,7 @@ namespace SimpleAsyncDemoApp
 
             try
             {
+                // That not frezee UI.
                 var results = await DemoMethods.RunDownloadAsync(progress, cts.Token);
                 // PrintResults(results);
             }
@@ -62,9 +68,14 @@ namespace SimpleAsyncDemoApp
 
         private async void executeParallelAsync_Click(object sender, RoutedEventArgs e)
         {
+            Progress<ProgressReportModel> progress = new Progress<ProgressReportModel>();
+            progress.ProgressChanged += ReportProgressChanged;
+
             var watch = Stopwatch.StartNew();
 
-            var results = await DemoMethods.RunDownloadPasrallelAsync();
+            // That not frezee UI.
+            // var results = await DemoMethods.RunDownloadPasrallelAsync();
+            var results = await DemoMethods.RunDownloadParallelAsyncV2(progress);
             PrintResults(results);
 
             watch.Stop();
@@ -73,7 +84,7 @@ namespace SimpleAsyncDemoApp
             resultsWindow.Text += $"Total execution time: { elapsedMs }";
         }
 
-        private async void cancelOperation_Click(object sender, RoutedEventArgs e)
+        private void cancelOperation_Click(object sender, RoutedEventArgs e)
         {
             cts.Cancel();
         }
