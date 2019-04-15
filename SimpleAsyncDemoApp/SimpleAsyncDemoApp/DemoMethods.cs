@@ -20,7 +20,7 @@ namespace SimpleAsyncDemoApp
             output.Add("https://www.amazon.com");
             output.Add("https://www.facebook.com");
             output.Add("https://www.twitter.com");
-            output.Add("https://www.codeproject.com");
+            //output.Add("https://www.codeproject.com");
             output.Add("https://www.stackoverflow.com");
             output.Add("https://en.wikipedia.org/wiki/.NET_Framework");
 
@@ -41,15 +41,20 @@ namespace SimpleAsyncDemoApp
             return output;
         }
 
-        public static async Task<List<WebsiteDataModel>> RunDownloadAsync()
+        public static async Task<List<WebsiteDataModel>> RunDownloadAsync(IProgress<ProgressReportModel> progress)
         {
             List<string> websites = PrepData();
             List<WebsiteDataModel> output = new List<WebsiteDataModel>();
+            ProgressReportModel report = new ProgressReportModel();
 
             foreach (string site in websites)
             {
                 WebsiteDataModel results = await DownloadWebsiteAsync(site);
                 output.Add(results);
+
+                report.SitesDownloaded = output;
+                report.PrecentageComplete = (output.Count * 100) / websites.Count;
+                progress.Report(report);
             }
 
             return output;
@@ -70,17 +75,6 @@ namespace SimpleAsyncDemoApp
             return new List<WebsiteDataModel>(results);
         }
 
-        private static WebsiteDataModel DownloadWebsite(string websiteUrl)
-        {
-            WebsiteDataModel output = new WebsiteDataModel();
-            WebClient client = new WebClient();
-
-            output.WebsiteUrl = websiteUrl;
-            output.WebsiteData = client.DownloadString(websiteUrl);
-
-            return output;
-        }
-
         private static async Task<WebsiteDataModel> DownloadWebsiteAsync(string websiteUrl)
         {
             WebsiteDataModel output = new WebsiteDataModel();
@@ -88,6 +82,17 @@ namespace SimpleAsyncDemoApp
 
             output.WebsiteUrl = websiteUrl;
             output.WebsiteData = await client.DownloadStringTaskAsync(websiteUrl);
+
+            return output;
+        }
+
+        private static WebsiteDataModel DownloadWebsite(string websiteUrl)
+        {
+            WebsiteDataModel output = new WebsiteDataModel();
+            WebClient client = new WebClient();
+
+            output.WebsiteUrl = websiteUrl;
+            output.WebsiteData = client.DownloadString(websiteUrl);
 
             return output;
         }

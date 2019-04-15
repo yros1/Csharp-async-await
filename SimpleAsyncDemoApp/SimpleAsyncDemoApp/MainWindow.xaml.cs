@@ -42,10 +42,13 @@ namespace SimpleAsyncDemoApp
 
         private async void executeAsync_Click(object sender, RoutedEventArgs e)
         {
+            Progress<ProgressReportModel> progress = new Progress<ProgressReportModel>();
+            progress.ProgressChanged += ReportProgressChanged;
+
             var watch = Stopwatch.StartNew();
 
-            var results = await DemoMethods.RunDownloadAsync();
-            PrintResults(results);
+            var results = await DemoMethods.RunDownloadAsync(progress);
+            // PrintResults(results);
 
             watch.Stop();
             var elapsedMs = watch.ElapsedMilliseconds;
@@ -53,6 +56,11 @@ namespace SimpleAsyncDemoApp
             resultsWindow.Text += $"Total execution time: { elapsedMs }";
         }
 
+        private void ReportProgressChanged(object sender, ProgressReportModel e)
+        {
+            dashboardProgress.Value = e.PrecentageComplete;
+            PrintResults(e.SitesDownloaded);
+        }
 
         private async void executeParallelAsync_Click(object sender, RoutedEventArgs e)
         {
